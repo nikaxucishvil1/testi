@@ -80,6 +80,35 @@ export default function Home() {
                 value={todoApp}
                 className="w-full min-h-[200px] p-3 flex flex-col items-center justify-center"
                 style={{ backgroundColor: todoApp.color }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  const task = e.dataTransfer.getData("task");
+                  const originalTodoIndex = parseInt(
+                    e.dataTransfer.getData("todoIndex")
+                  );
+                  if (task && originalTodoIndex !== todoIndex) {
+                    setTodoApps((prev) => {
+                      const updatedTodoApps = [...prev];
+                      const targetApp = updatedTodoApps[todoIndex];
+                      const updatedApp = {
+                        ...targetApp,
+                        tasks: [...targetApp.tasks, task],
+                      };
+                      updatedTodoApps[todoIndex] = updatedApp;
+
+                      const originalApp = updatedTodoApps[originalTodoIndex];
+                      const updatedOriginalApp = {
+                        ...originalApp,
+                        tasks: originalApp.tasks.filter((t) => t !== task),
+                      };
+                      updatedTodoApps[originalTodoIndex] = updatedOriginalApp;
+
+                      return updatedTodoApps;
+                    });
+                  }
+                }}
               >
                 <div className="w-full h-full flex items-center justify-between">
                   <input
@@ -121,6 +150,15 @@ export default function Home() {
                   {todoApp.tasks.length > 0 &&
                     todoApp.tasks.map((task, taskIndex) => (
                       <div
+                        key={task}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData("task", task);
+                          e.dataTransfer.setData("todoIndex", todoIndex.toString());
+                        }}
+                        onDragEnd={(e) => {
+                          e.preventDefault();
+                        }}
                         className="text-white bg-black flex items-center justify-center gap-2 p-2 rounded-xl"
                       >
                         <input type="checkbox" name="" id="" />

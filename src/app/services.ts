@@ -1,4 +1,5 @@
 import { saveAs } from "file-saver";
+import { useState } from "react";
 
 export interface TodoApp {
   id: number;
@@ -29,6 +30,7 @@ export const deleteTodoApp = (
   const deletedTodoApps = todoApps.filter((_, index) => index !== AppIndex);
   setTodoApps(deletedTodoApps);
 };
+
 export const addTask = (
   task: string,
   setTodoApps: React.Dispatch<React.SetStateAction<TodoApp[]>>,
@@ -79,4 +81,39 @@ export const dowloadFile = (data: any) => {
   } else {
     alert("no todos to download");
   }
+};
+
+export const handleDragStart = (task: string, appIndex: number) => {
+  const dataTransfer = {
+    task,
+    appIndex,
+  };
+  return dataTransfer;
+};
+
+export const handleDrop = (
+  setTodoApps: React.Dispatch<React.SetStateAction<TodoApp[]>>,
+  appIndex: number,
+  dataTransfer: any
+) => {
+  const { task, originalAppIndex } = dataTransfer;
+
+  setTodoApps((prev: TodoApp[]) => {
+    const updatedTodoApps = [...prev];
+    const targetApp = updatedTodoApps[appIndex];
+    const updatedApp = {
+      ...targetApp,
+      tasks: [...targetApp.tasks, task],
+    };
+    updatedTodoApps[appIndex] = updatedApp;
+
+    const originalApp = updatedTodoApps[originalAppIndex];
+    const updatedOriginalApp = {
+      ...originalApp,
+      tasks: originalApp.tasks.filter((t) => t !== task),
+    };
+    updatedTodoApps[originalAppIndex] = updatedOriginalApp;
+
+    return updatedTodoApps;
+  });
 };
