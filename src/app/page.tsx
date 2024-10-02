@@ -13,6 +13,7 @@ import { Reorder } from "framer-motion";
 export default function Home() {
   const [todoApps, setTodoApps] = useState<TodoApp[]>([]);
   const [showColors, setShowColors] = useState(false);
+  const [inputValues, setInputValues] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     const res = localStorage.getItem("todoApps");
@@ -73,7 +74,8 @@ export default function Home() {
       >
         {todoApps.length > 0 &&
           todoApps.map((todoApp, todoIndex) => {
-            let value = "";
+            let inputValue = inputValues[todoApp.id] || "";
+
             return (
               <Reorder.Item
                 key={todoApp.id}
@@ -115,13 +117,19 @@ export default function Home() {
                     type="text"
                     className="border border-black"
                     placeholder="enter task"
+                    value={inputValue}
                     onChange={(e) => {
-                      value = e.target.value;
+                      const newInputValues = { ...inputValues };
+                      newInputValues[todoApp.id] = e.target.value;
+                      setInputValues(newInputValues);
                     }}
                   />
                   <button
                     onClick={() => {
-                      addTask(value, setTodoApps, todoIndex);
+                      addTask(inputValue, setTodoApps, todoIndex);
+                      const newInputValues = { ...inputValues };
+                      newInputValues[todoApp.id] = "";
+                      setInputValues(newInputValues);
                     }}
                     className="bg-black text-white p-3 rounded-xl"
                   >
@@ -154,7 +162,10 @@ export default function Home() {
                         draggable
                         onDragStart={(e) => {
                           e.dataTransfer.setData("task", task);
-                          e.dataTransfer.setData("todoIndex", todoIndex.toString());
+                          e.dataTransfer.setData(
+                            "todoIndex",
+                            todoIndex.toString()
+                          );
                         }}
                         onDragEnd={(e) => {
                           e.preventDefault();
