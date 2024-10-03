@@ -1,5 +1,4 @@
 import { saveAs } from "file-saver";
-import { useState } from "react";
 
 export interface TodoApp {
   id: number;
@@ -58,18 +57,15 @@ export const deleteTask = (
   taskIndex: number
 ) => {
   setTodoApps((prev: TodoApp[]) => {
-    const updatedTodoApps = [...prev];
-    const targetApp = updatedTodoApps[appIndex];
-    const updatedApp = {
-      ...targetApp,
-      tasks: [
-        ...targetApp.tasks.slice(0, taskIndex),
-        ...targetApp.tasks.slice(taskIndex + 1),
-      ],
-    };
-    updatedTodoApps[appIndex] = updatedApp;
-
-    return updatedTodoApps;
+    return prev.map((app, index) => {
+      if (index === appIndex) {
+        return {
+          ...app,
+          tasks: app.tasks.filter((_, i) => i !== taskIndex),
+        };
+      }
+      return app;
+    });
   });
 };
 
